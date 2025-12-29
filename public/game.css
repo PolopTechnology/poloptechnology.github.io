@@ -1,0 +1,64 @@
+.the-ball {
+  width: 10px;         
+  height: 10px;        
+  background-color: black; 
+  border: 2px solid black;   
+  padding: 10px;       
+  margin: 20px;        
+  color: white;
+  position: absolute;
+  left: 600px;
+  top: 150px;
+}
+
+.rectangle-box {
+  width: 50px;         
+  height: 200px;        
+  background-color: #4679BD; 
+  border: 2px solid black;   
+  padding: 10px;       
+  margin: 20px;        
+  color: white;
+  position: absolute;
+  left: 25px;
+  top: 150px;
+}
+
+.rectangle-box2 {
+  width: 50px;         
+  height: 200px;        
+  background-color: red; 
+  border: 2px solid black;   
+  padding: 10px;       
+  margin: 20px;        
+  color: white;
+  position: absolute;
+  left: 1125px;
+  top: 150px;
+}
+
+.rectangle-box3 {
+  width: 1200px;         
+  height: 10px;        
+  background-color: black; 
+  border: 2px solid black;   
+  padding: 10px;       
+  margin: 20px;        
+  color: white;
+  position: absolute;
+  left: 0px;
+  top: -10px;
+}
+
+.rectangle-box4 {
+  width: 1200px;         
+  height: 10px;        
+  background-color: black; 
+  border: 2px solid black;   
+  padding: 10px;       
+  margin: 20px;        
+  color: white;
+  position: absolute;
+  left: 0px;
+  top: 450px;
+}
