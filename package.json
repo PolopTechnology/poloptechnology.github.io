@@ -1,0 +1,23 @@
+{
+  "name": "multiplayer-pong",
+  "version": "1.0.0",
+  "description": "A showcase of my full stack web development skills for my college portfolio.",
+  "dependencies": {
+    "express": "5.2.1",
+    "firebase": "^12.7.0",
+    "react": "19.2.3",
+    "socket.io": "4.8.3"
+  },
+  "keywords": [
+    "portfolio",
+    "challenge",
+    "full-stack"
+  ],
+  "license": "ISC",
+  "author": "Sergio Santiago Ortiz",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

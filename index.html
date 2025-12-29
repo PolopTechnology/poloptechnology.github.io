@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="public/game.css">
+    </head>
+    <body>
+        <div id="playingArea"></div>
+        <div id="ball" class="the-ball"></div>
+        <div id="Player1" class="rectangle-box"></div>
+        <div id="Player2" class="rectangle-box2"></div>
+        <div id="up" class="rectangle-box3"></div>
+        <div id="down" class="rectangle-box4"></div>
+        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+      
+        <!-- Load our React component. -->
+        <script src="public/react.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+           var socket = io();
+           var player;
+           let direction = "left";
+           let direction2 = "up";
+           let player1Points = 0;
+           let player2Points = 0;
+           document.getElementById("Player1").style.top = '150px';
+           document.getElementById("Player2").style.top = '150px';
+           document.getElementById("ball").style.left = '600px';
+           document.getElementById("ball").style.top = '150px';
+
+           let username = prompt("Choose a username!");
+           let roomCode = prompt("Please enter a room code:");
+           socket.emit('joinedRoom', {room: roomCode, name: username});
+           timesInit = 0;
+
+           socket.on('numberOfClients', (data) => {
+            console.log(data[1])
+            console.log(username)
+            if (data[1] == username) {
+                d1 = data[0][roomCode];
+                if (d1 == 1) {
+                    player = 1;
+                    console.log(player)
+                } else if (d1 == 2) {
+                    player = 2;
+                    console.log(player)
+                } else if (d1 > 2) {
+                    alert("Room full!");
+                }
+
+                console.log(`player: ${player}`);
+            }
+            if (timesInit == 0) {
+                initializeListeners()
+                timesInit += 1;
+            } else {
+                if (data[0][roomCode] == 2){
+                    socket.emit("startGame");
+                }
+            }
+           });
+
+            function isCollide(a, b) {
+                return (
+                    ((a.y + a.height) < (b.y)) ||
+                    (a.y > (b.y + b.height)) ||
+                    ((a.x + a.width) < b.x) ||
+                    (a.x > (b.x + b.width))
+                );
+            }
+
+           function checkBall() {
+            if (direction == "left") {
+                console.log('tf?');
+                xy1 = parseInt(document.getElementById('ball').style.left, 10);
+                document.getElementById('ball').style.left = String(xy1-5) + "px";   
+            } else if (direction == "right") {
+                xy1 = parseInt(document.getElementById('ball').style.left, 10);
+                document.getElementById('ball').style.left = String(xy1+5) + "px";
+            }
+            if (direction2 == "up") {
+                xy2 = parseInt(document.getElementById('ball').style.top, 10);
+                document.getElementById('ball').style.top = String(xy2+1) + "px";  
+            } else if (direction2 == "down") {
+                xy2 = parseInt(document.getElementById('ball').style.top, 10);
+                document.getElementById('ball').style.top = String(xy2-1) + "px";  
+            }
+            if (document.elementFromPoint(document.getElementById('ball').getBoundingClientRect().x, document.getElementById('ball').getBoundingClientRect().y) == document.getElementById('Player1')) {
+                direction = "right";
+            } else if (document.elementFromPoint(document.getElementById('ball').getBoundingClientRect().x, document.getElementById('ball').getBoundingClientRect().y) == document.getElementById('Player2')) {
+                direction = "left";
+            }
+            if (document.elementFromPoint(document.getElementById('ball').getBoundingClientRect().x, document.getElementById('ball').getBoundingClientRect().y) == document.getElementById('up')) {
+                direction2 = "up";
+            } else if (document.elementFromPoint(document.getElementById('ball').getBoundingClientRect().x, document.getElementById('ball').getBoundingClientRect().y) == document.getElementById('down')) {
+                direction2 = "down";
+            }
+            if (parseInt(document.getElementById('ball').style.left, 10) < 25) {
+                player2Points += 1;
+                direction = "right";
+                document.getElementById('ball').style.left = "600px";
+                document.getElementById('ball').style.top = "150px";
+                console.log(player2Points);     
+
+            } else if (parseInt(document.getElementById('ball').style.left, 10) > 1125) {
+                player1Points += 1;
+                direction = "left";
+                document.getElementById('ball').style.left = "600px";
+                document.getElementById('ball').style.top = "150px";
+                console.log(player1Points);
+            }  
+           }
+
+           socket.on("gameStarted", (data) => {
+            const intervalId = setInterval(checkBall, 10);
+           })
+
+           function initializeListeners() {
+            if (player == 1) {
+                    document.addEventListener('keydown', function(event) {
+                            if(event.key == "ArrowDown") {
+                                y = parseInt(document.getElementById('Player1').style.top, 10);
+                                if (y <= 295) { 
+                                    console.log(y)
+                                    document.getElementById('Player1').style.top = String(y+5) + "px";
+                                    socket.emit("keyClicked", ["ArrowDown", roomCode, String(player)]);
+                                }
+                            }
+                            else if(event.key == "ArrowUp") {
+                                x = parseInt(document.getElementById('Player1').style.top, 10);
+                                if (x >= -10) { 
+                                    console.log(x)
+                                    document.getElementById('Player1').style.top = String(x-5) + "px";
+                                    socket.emit("keyClicked", ["ArrowUp", roomCode, String(player)]);
+                                }
+                            }
+                        });
+                    socket.on('move', (data) => {
+                        if (data[1] == roomCode) {
+                            if (data[2] == '2') {
+                                console.log('moved')
+                                    if(data[0] == "ArrowDown") {
+                                        y = parseInt(document.getElementById('Player2').style.top, 10);
+                                        if (y <= 295) { 
+                                            console.log(y)
+                                            document.getElementById('Player2').style.top = String(y+5) + "px";
+                                        }
+                                    }
+                                    else if(data[0] == "ArrowUp") {
+                                        x = parseInt(document.getElementById('Player2').style.top, 10);
+                                        if (x >= -10) { 
+                                            console.log(x)
+                                            document.getElementById('Player2').style.top = String(x-5) + "px";
+                                        }
+                                    }
+                            }
+                        }
+                    })
+                }
+
+                else if (player == 2) {
+                    document.addEventListener('keydown', function(event) {
+                            if(event.key == "ArrowDown") {
+                                y = parseInt(document.getElementById('Player2').style.top, 10);
+                                if (y <= 295) { 
+                                    console.log(y)
+                                    document.getElementById('Player2').style.top = String(y+5) + "px";
+                                    socket.emit("keyClicked", ["ArrowDown", roomCode, String(player)]);
+                                }
+                            }
+                            else if(event.key == "ArrowUp") {
+                                x = parseInt(document.getElementById('Player2').style.top, 10);
+                                if (x >= -10) { 
+                                    console.log(x)
+                                    document.getElementById('Player2').style.top = String(x-5) + "px";
+                                    socket.emit("keyClicked", ["ArrowUp", roomCode, String(player)]);
+                                }
+                            }
+                        });
+                    socket.on('move', (data) => {
+                        if (data[1] == roomCode) {
+                            if (data[2] == '1') {
+                                console.log('moved')
+                                    if(data[0] == "ArrowDown") {
+                                        y = parseInt(document.getElementById('Player1').style.top, 10);
+                                        if (y <= 295) { 
+                                            console.log(y)
+                                            document.getElementById('Player1').style.top = String(y+5) + "px";
+                                        }
+                                    }
+                                    else if(data[0] == "ArrowUp") {
+                                        x = parseInt(document.getElementById('Player1').style.top, 10);
+                                        if (x >= -10) { 
+                                            console.log(x)
+                                            document.getElementById('Player1').style.top = String(x-5) + "px";
+                                        }
+                                    }
+                            }
+                        }
+                    })
+                }
+            }
+
+        </script>
+    </body>
+</html>
